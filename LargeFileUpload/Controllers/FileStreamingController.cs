@@ -33,6 +33,7 @@ namespace LargeFileUpload.Controllers
             }
 
             var formAccumulator = new KeyValueAccumulator();
+            var targetFilePath = string.Empty;
 
             var boundary = MultipartUtilities.GetBoundary(MediaTypeHeaderValue.Parse(Request.ContentType), _defaultFormOptions.MultipartBoundaryLengthLimit);
 
@@ -41,11 +42,11 @@ namespace LargeFileUpload.Controllers
             var section = await reader.ReadNextSectionAsync();
             while (section != null)
             {
-                if(ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out ContentDispositionHeaderValue contentDisposition))
+                if (ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out ContentDispositionHeaderValue contentDisposition))
                 {
                     if (MultipartUtilities.HasFileContentDisposition(contentDisposition))
                     {
-                        var targetFilePath = Path.Combine(Directory.GetCurrentDirectory(), HeaderUtilities.RemoveQuotes(contentDisposition.FileName).Value);
+                        targetFilePath = Path.Combine(Directory.GetCurrentDirectory(), HeaderUtilities.RemoveQuotes(contentDisposition.FileName).Value);
                         using (var targetStream = System.IO.File.Create(targetFilePath))
                         {
                             await section.Body.CopyToAsync(targetStream);

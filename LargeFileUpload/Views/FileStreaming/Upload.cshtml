@@ -1,6 +1,46 @@
-﻿<form action="/api/files/upload" method="post" enctype="multipart/form-data">
-    <input name="large-file" type="file" />
-    <input name="large" type="text" />
-    <input name="large-file" type="file" />
-    <button type="submit">Upload</button>
-</form>
+﻿<input name="large-file" id="file" type="file" />
+<button type="submit" id="upload">Upload</button>
+
+<script>
+
+    var fileInput = document.getElementById("file");
+    fileInput.addEventListener("change", function () {
+        console.log(this.files[0]);
+    });
+
+    var uploadButton = document.getElementById("upload");
+    uploadButton.addEventListener("click", function () {
+
+        var fileInput = document.getElementById("file");
+        var formData = new FormData();
+        formData.append("largfile", fileInput.files[0]);
+
+        var request = new XMLHttpRequest();
+
+        request.addEventListener("load", function () {
+            // ajax request finished.
+            console.log(request.response);
+        });
+
+        // progress for download
+        // ref: https://stackoverflow.com/questions/44874393/nonsensical-values-of-loaded-and-total-in-ajax-file-upload
+        /*request.addEventListener("progress", function (e) {
+            var percent = (e.loaded / e.total) * 100;
+            console.log("progress: ", percent);
+        })*/
+
+        request.upload.addEventListener("progress", function (e) {
+            var percent = (e.loaded / e.total) * 100;
+            console.log("progress: ", percent);
+        });
+
+        request.responseType = "json";
+
+        request.open("post", "http://localhost:53477/api/files/upload");
+
+        request.send(formData);
+
+    });
+
+</script>
+
